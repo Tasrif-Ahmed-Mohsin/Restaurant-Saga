@@ -11,7 +11,21 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from folium.plugins import HeatMap
 
-st.set_page_config(page_title="Restaurant Success Predictor", layout="wide")
+# Page config with emoji and layout
+st.set_page_config(page_title="📍 Restaurant Success Predictor", layout="wide")
+
+# Add custom styling
+st.markdown("""
+    <style>
+        .main { background-color: #f9f9fb; }
+        .title { font-size: 3em; font-weight: bold; color: #0A5C59; margin-bottom: 0.5em; }
+        .subtitle { font-size: 1.5em; color: #444; }
+        .metric { font-size: 1.2em; }
+        .footer { text-align: center; margin-top: 2rem; font-size: 0.9em; color: #777; }
+        .footer a { text-decoration: none; color: #0A5C59; font-weight: bold; }
+        .stMetricDelta { color: #0A5C59 !important; }
+    </style>
+""", unsafe_allow_html=True)
 
 @st.cache_data
 def load_data():
@@ -21,6 +35,7 @@ def load_data():
 
 df = load_data()
 
+# Drop unnecessary columns
 drop_cols = [
     'mapurlwithcor', 'name', 'imgsrc', 'address', 'closetime', 'isopen',
     'pricerange', 'price_range', 'serving1', 'serving2', 'serving3',
@@ -28,12 +43,15 @@ drop_cols = [
 ]
 df_model = df.drop(columns=drop_cols)
 
+# Prepare features and target
 y = df_model['success_rate'] / 10.0
 X = df_model.drop(columns=['success_rate'])
 
+# Identify columns
 categorical_cols = X.select_dtypes(include=['object']).columns.tolist()
 numerical_cols = X.select_dtypes(include=[np.number]).columns.tolist()
 
+# Pipelines for preprocessing
 numeric_transformer = Pipeline([
     ('imputer', SimpleImputer(strategy='median'))
 ])
@@ -71,48 +89,47 @@ def predict_success(lat, lon):
     percentage_score = (prediction_raw / max_success_rate) * 100
     return round(prediction_raw, 2), round(percentage_score, 2)
 
-# Sidebar
+# Sidebar - info section
 with st.sidebar:
-    st.header("About")
+    st.markdown("### ℹ️ About")
     st.markdown("""
-        This app predicts restaurant success rates using ML trained on real data from Dhaka.
+    This interactive map uses ML to predict **restaurant success** based on coordinates in **Dhaka**.
 
-        **Instructions:**
-        - Click anywhere on the map
-        - View the predicted success rate at that location
+    **How to use:**
+    - Click a location on the map
+    - See the predicted success instantly
     """)
 
-# Title
-st.title("Restaurant Success Predictor")
+# Title Section
+st.markdown('<div class="title">📍 Restaurant Success Predictor</div>', unsafe_allow_html=True)
 
-# Output container shown first
+# Container for output
 output_container = st.container()
 
-# Prediction section (initially blank)
+# Coordinates and prediction values
 lat, lon, raw, percent = None, None, None, None
 
-# Map
+# Map setup
 m = folium.Map(location=[23.8103, 90.4125], zoom_start=12, control_scale=True)
 heat_data = df[['latitude', 'longitude', 'success_rate']].dropna().values.tolist()
 HeatMap(heat_data, radius=15, blur=20, min_opacity=0.5).add_to(m)
-map_data = st_folium(m, width=900, height=550)
+map_data = st_folium(m, width=1000, height=520)
 
-# Show prediction if clicked
+# Show result if user clicked map
 if map_data and map_data.get("last_clicked"):
     lat = map_data["last_clicked"]["lat"]
     lon = map_data["last_clicked"]["lng"]
-    with st.spinner("Calculating success rate..."):
+    with st.spinner("🔎 Calculating..."):
         raw, percent = predict_success(lat, lon)
 
     with output_container:
-        st.markdown("## 🔍 Prediction Result")
+        st.markdown('<div class="subtitle">🎯 Prediction Result</div>', unsafe_allow_html=True)
         col1, col2 = st.columns([1, 2])
         with col1:
-            st.markdown("**Coordinates**")
-            st.write(f"📍 Latitude: `{lat:.5f}`")
-            st.write(f"📍 Longitude: `{lon:.5f}`")
+            st.markdown("**📌 Coordinates**")
+            st.code(f"Lat: {lat:.5f}  \nLng: {lon:.5f}", language='markdown')
         with col2:
-            st.markdown("**Success Rate**")
+            st.markdown("**📈 Success Rate**")
             st.metric(
                 label="Predicted Success Rate",
                 value=f"{percent:.2f}%",
@@ -122,7 +139,7 @@ if map_data and map_data.get("last_clicked"):
 # Footer immediately after map
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; padding-top: 1rem;">
-    Made with ❤️ by <a href="https://github.com/Tasrif-Ahmed-Mohsin" target="_blank">Tasrif_Ahmed</a>
+<div class="footer">
+    Built with ❤️ by <a href="https://github.com/Tasrif-Ahmed-Mohsin" target="_blank">Tasrif</a>
 </div>
 """, unsafe_allow_html=True)
