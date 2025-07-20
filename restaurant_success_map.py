@@ -14,7 +14,6 @@ from folium.plugins import HeatMap
 
 st.set_page_config(page_title="Restaurant Predictor", layout="wide")
 
-
 # --------------------------
 # Load Dataset
 # --------------------------
@@ -69,7 +68,6 @@ def train_model():
     return model
 
 model = train_model()
-
 max_success_rate = df['success_rate'].max()
 
 # --------------------------
@@ -91,10 +89,10 @@ def predict_success(lat, lon):
 # Sidebar
 # --------------------------
 with st.sidebar:
-    st.header(" About")
+    st.header("About")
     st.markdown("""
         This app predicts restaurant success rates using ML trained on real data from Dhaka.
-        
+
         **Instructions:**
         - Click anywhere on the map
         - View the predicted success rate at that location
@@ -144,12 +142,12 @@ if map_data and map_data.get("last_clicked"):
     st.markdown("---")
     col1, col2 = st.columns([1, 2])
     with col1:
-        st.subheader(" Coordinates")
+        st.subheader("Coordinates")
         st.write(f"**Latitude:** {lat:.5f}")
         st.write(f"**Longitude:** {lon:.5f}")
 
     with col2:
-        st.subheader(" Prediction")
+        st.subheader("Prediction")
         st.metric(
             label="Predicted Success Rate",
             value=f"{percent:.2f}%",
@@ -161,5 +159,5 @@ if map_data and map_data.get("last_clicked"):
 # --------------------------
 st.markdown("""
 ---
-Made with *%%* by [Tasrif](https://github.com/Tasrif-Ahmed-Mohsin)
+Made with ❤️ by [Tasrif](https://github.com/Tasrif-Ahmed-Mohsin)
 """, unsafe_allow_html=True)
