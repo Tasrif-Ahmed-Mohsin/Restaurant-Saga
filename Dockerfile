@@ -1,22 +1,28 @@
+# Use official Python image
 FROM python:3.10-slim
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libgl1-mesa-glx \
-    && rm -rf /var/lib/apt/lists/*
+# Set environment
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Set working directory
+# Set work directory
 WORKDIR /app
 
-# Copy files
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY ./app ./app
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+# Copy app files
+COPY . .
 
 # Expose Streamlit port
 EXPOSE 8501
 
-# Run Streamlit
-CMD ["streamlit", "run", "app/app.py", "--server.port=8501", "--server.enableCORS=false"]
+# Run Streamlit app
+CMD ["streamlit", "run", "restaurant_success_map.py", "--server.port=8501", "--server.address=0.0.0.0"]
