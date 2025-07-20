@@ -9,6 +9,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+from folium.plugins import HeatMap
 
 # Load data
 @st.cache_data
@@ -69,26 +70,48 @@ def predict_success(lat, lon):
     percentage_score = (prediction_raw / max_success_rate) * 100
     return round(prediction_raw, 2), round(percentage_score, 2)
 
-# Streamlit UI
-st.set_page_config(page_title="Restaurant Success Predictor", layout="wide")
-st.title("📍 Restaurant Success Rate Map")
-st.markdown("Click on the map to predict success at that location.")
+# Streamlit UI Enhancements
+st.set_page_config(page_title="📍 Restaurant Success Predictor", layout="wide")
+st.markdown("""
+    <style>
+    .main { background-color: #f9f9f9; }
+    .stButton>button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        text-align: center;
+        font-size: 16px;
+        border-radius: 8px;
+    }
+    .stMetric { font-size: 22px; font-weight: 600; }
+    </style>
+""", unsafe_allow_html=True)
 
-# Create Map
-m = folium.Map(location=[23.8103, 90.4125], zoom_start=12)
+st.title("📍 Restaurant Success Predictor")
+st.markdown("""
+    Use the interactive map below to click on any location in Dhaka.
+    You'll receive a predicted restaurant success rate at that point based on data analysis and ML modeling.
+""")
 
-# Add heatmap
-from folium.plugins import HeatMap
+# Create and display map
+m = folium.Map(location=[23.8103, 90.4125], zoom_start=12, control_scale=True)
 heat_data = df[['latitude', 'longitude', 'success_rate']].dropna().values.tolist()
 HeatMap(heat_data, radius=15, blur=20, min_opacity=0.5).add_to(m)
+map_data = st_folium(m, width=900, height=550)
 
-# Map interaction
-map_data = st_folium(m, width=800, height=500)
-
+# Output prediction
 if map_data and map_data.get("last_clicked"):
     lat = map_data["last_clicked"]["lat"]
     lon = map_data["last_clicked"]["lng"]
     raw, percent = predict_success(lat, lon)
-    st.success(f"📍 You clicked: Latitude = {lat:.5f}, Longitude = {lon:.5f}")
-    st.metric("📈 Predicted Success Rate", f"{percent:.2f}%", help=f"Raw: {raw:.2f} / Max: {max_success_rate:.2f}")
 
+    st.markdown("---")
+    st.subheader("📍 Selected Coordinates")
+    st.write(f"Latitude: `{lat:.5f}`, Longitude: `{lon:.5f}`")
+
+    st.metric(
+        label="📈 Predicted Success Rate",
+        value=f"{percent:.2f}%",
+        delta=f"Raw Score: {raw:.2f} / Max: {max_success_rate:.2f}"
+    )
