@@ -91,7 +91,7 @@ def predict_success(lat, lon):
 # Sidebar
 # --------------------------
 with st.sidebar:
-    st.header("\u2139\ufe0f About")
+    st.header(" About")
     st.markdown("""
         This app predicts restaurant success rates using ML trained on real data from Dhaka.
         
@@ -144,12 +144,12 @@ if map_data and map_data.get("last_clicked"):
     st.markdown("---")
     col1, col2 = st.columns([1, 2])
     with col1:
-        st.subheader("\ud83d\udccd Coordinates")
+        st.subheader(" Coordinates")
         st.write(f"**Latitude:** {lat:.5f}")
         st.write(f"**Longitude:** {lon:.5f}")
 
     with col2:
-        st.subheader("\ud83d\udcca Prediction")
+        st.subheader(" Prediction")
         st.metric(
             label="Predicted Success Rate",
             value=f"{percent:.2f}%",
@@ -161,5 +161,5 @@ if map_data and map_data.get("last_clicked"):
 # --------------------------
 st.markdown("""
 ---
-Made with \u2764\ufe0f by [Tasrif](https://github.com/Tasrif-Ahmed-Mohsin)
+Made with *%%* by [Tasrif](https://github.com/Tasrif-Ahmed-Mohsin)
 """, unsafe_allow_html=True)
