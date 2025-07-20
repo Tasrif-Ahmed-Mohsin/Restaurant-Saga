@@ -123,6 +123,6 @@ if map_data and map_data.get("last_clicked"):
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; padding-top: 1rem;">
-    Made with ❤️ by <a href="https://github.com/Tasrif-Ahmed-Mohsin" target="_blank">Tasrif</a>
+    Made with ❤️ by <a href="https://github.com/Tasrif-Ahmed-Mohsin" target="_blank">Tasrif_Ahmed</a>
 </div>
 """, unsafe_allow_html=True)
