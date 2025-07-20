@@ -12,7 +12,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from folium.plugins import HeatMap
 
-st.set_page_config(page_title="\ud83d\udccd Restaurant Success Predictor", layout="wide")
+st.set_page_config(page_title="Restaurant Predictor", layout="wide")
+
 
 # --------------------------
 # Load Dataset
