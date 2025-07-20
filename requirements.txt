@@ -1,9 +1,6 @@
 streamlit
+streamlit-folium
 scikit-learn
 pandas
 numpy
-ipyleaflet
-gdown
-matplotlib
 folium
-geopandas
