@@ -15,17 +15,54 @@ from folium.plugins import HeatMap
 st.set_page_config(page_title="📍 Restaurant Success Predictor", layout="wide")
 
 # Add custom styling
+# Custom CSS for background and overall style
 st.markdown("""
     <style>
-        .main { background-color: #f9f9fb; }
-        .title { font-size: 3em; font-weight: bold; color: #0A5C59; margin-bottom: 0.5em; }
-        .subtitle { font-size: 1.5em; color: #444; }
-        .metric { font-size: 1.2em; }
-        .footer { text-align: center; margin-top: 2rem; font-size: 0.9em; color: #777; }
-        .footer a { text-decoration: none; color: #0A5C59; font-weight: bold; }
-        .stMetricDelta { color: #0A5C59 !important; }
+        /* Background color */
+        .stApp {
+            background-color: #f0f5f9;
+            background-image: linear-gradient(120deg, #f0f5f9 0%, #dfe9f3 100%);
+        }
+
+        /* Title Styling */
+        .title {
+            font-size: 3em;
+            font-weight: bold;
+            color: #0A5C59;
+            margin-bottom: 0.5em;
+        }
+
+        /* Subtitle */
+        .subtitle {
+            font-size: 1.5em;
+            color: #444;
+        }
+
+        /* Metric styling */
+        .metric {
+            font-size: 1.2em;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.9em;
+            color: #777;
+        }
+        .footer a {
+            text-decoration: none;
+            color: #0A5C59;
+            font-weight: bold;
+        }
+
+        /* Fix streamlit metric color */
+        .stMetricDelta {
+            color: #0A5C59 !important;
+        }
     </style>
 """, unsafe_allow_html=True)
+
 
 @st.cache_data
 def load_data():
