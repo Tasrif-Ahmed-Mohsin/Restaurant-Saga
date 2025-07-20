@@ -119,7 +119,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("\ud83d\udccd Restaurant Success Predictor")
+st.title("Restaurant Success Predictor")
+
 st.markdown("""
 Use the interactive map below to click on any location in Dhaka.
 You'll receive a predicted restaurant success rate at that point based on data analysis and ML modeling.
