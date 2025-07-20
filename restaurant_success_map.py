@@ -1,4 +1,3 @@
-# File: restaurant_success_map.py
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -12,11 +11,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from folium.plugins import HeatMap
 
-st.set_page_config(page_title="Restaurant Predictor", layout="wide")
+st.set_page_config(page_title="Restaurant Success Predictor", layout="wide")
 
-# --------------------------
-# Load Dataset
-# --------------------------
 @st.cache_data
 def load_data():
     url = "https://drive.google.com/uc?export=download&id=1c8elHtu79a5FGImyMKjZ4kP2Bu0Nf7I7"
@@ -25,25 +21,19 @@ def load_data():
 
 df = load_data()
 
-# --------------------------
-# Preprocess Data
-# --------------------------
 drop_cols = [
     'mapurlwithcor', 'name', 'imgsrc', 'address', 'closetime', 'isopen',
     'pricerange', 'price_range', 'serving1', 'serving2', 'serving3',
     'serving_options'
 ]
-
 df_model = df.drop(columns=drop_cols)
 
-# Target
 y = df_model['success_rate'] / 10.0
 X = df_model.drop(columns=['success_rate'])
 
 categorical_cols = X.select_dtypes(include=['object']).columns.tolist()
 numerical_cols = X.select_dtypes(include=[np.number]).columns.tolist()
 
-# Pipelines
 numeric_transformer = Pipeline([
     ('imputer', SimpleImputer(strategy='median'))
 ])
@@ -51,7 +41,6 @@ categorical_transformer = Pipeline([
     ('imputer', SimpleImputer(strategy='most_frequent')),
     ('onehot', OneHotEncoder(handle_unknown='ignore'))
 ])
-
 preprocessor = ColumnTransformer([
     ('num', numeric_transformer, numerical_cols),
     ('cat', categorical_transformer, categorical_cols)
@@ -70,9 +59,6 @@ def train_model():
 model = train_model()
 max_success_rate = df['success_rate'].max()
 
-# --------------------------
-# Prediction Function
-# --------------------------
 def predict_success(lat, lon):
     distances = np.sqrt((X['latitude'] - lat)**2 + (X['longitude'] - lon)**2)
     nearest_index = distances.idxmin()
@@ -85,9 +71,7 @@ def predict_success(lat, lon):
     percentage_score = (prediction_raw / max_success_rate) * 100
     return round(prediction_raw, 2), round(percentage_score, 2)
 
-# --------------------------
 # Sidebar
-# --------------------------
 with st.sidebar:
     st.header("About")
     st.markdown("""
@@ -98,66 +82,47 @@ with st.sidebar:
         - View the predicted success rate at that location
     """)
 
-# --------------------------
-# UI Styling
-# --------------------------
-st.markdown("""
-    <style>
-    .main { background-color: #f9f9f9; }
-    .stButton>button {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        text-align: center;
-        font-size: 16px;
-        border-radius: 8px;
-    }
-    .stMetric { font-size: 22px; font-weight: 600; }
-    </style>
-""", unsafe_allow_html=True)
-
+# Title
 st.title("Restaurant Success Predictor")
 
-st.markdown("""
-Use the interactive map below to click on any location in Dhaka.
-You'll receive a predicted restaurant success rate at that point based on data analysis and ML modeling.
-""")
+# Output container shown first
+output_container = st.container()
 
-# --------------------------
-# Map & Prediction
-# --------------------------
+# Prediction section (initially blank)
+lat, lon, raw, percent = None, None, None, None
+
+# Map
 m = folium.Map(location=[23.8103, 90.4125], zoom_start=12, control_scale=True)
 heat_data = df[['latitude', 'longitude', 'success_rate']].dropna().values.tolist()
 HeatMap(heat_data, radius=15, blur=20, min_opacity=0.5).add_to(m)
 map_data = st_folium(m, width=900, height=550)
 
+# Show prediction if clicked
 if map_data and map_data.get("last_clicked"):
     lat = map_data["last_clicked"]["lat"]
     lon = map_data["last_clicked"]["lng"]
-
     with st.spinner("Calculating success rate..."):
         raw, percent = predict_success(lat, lon)
 
-    st.markdown("---")
-    col1, col2 = st.columns([1, 2])
-    with col1:
-        st.subheader("Coordinates")
-        st.write(f"**Latitude:** {lat:.5f}")
-        st.write(f"**Longitude:** {lon:.5f}")
+    with output_container:
+        st.markdown("## 🔍 Prediction Result")
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            st.markdown("**Coordinates**")
+            st.write(f"📍 Latitude: `{lat:.5f}`")
+            st.write(f"📍 Longitude: `{lon:.5f}`")
+        with col2:
+            st.markdown("**Success Rate**")
+            st.metric(
+                label="Predicted Success Rate",
+                value=f"{percent:.2f}%",
+                delta=f"Raw: {raw:.2f} / Max: {max_success_rate:.2f}"
+            )
 
-    with col2:
-        st.subheader("Prediction")
-        st.metric(
-            label="Predicted Success Rate",
-            value=f"{percent:.2f}%",
-            delta=f"Raw: {raw:.2f} / Max: {max_success_rate:.2f}"
-        )
-
-# --------------------------
-# Footer
-# --------------------------
+# Footer immediately after map
+st.markdown("---")
 st.markdown("""
----
-Made with ❤️ by [Tasrif](https://github.com/Tasrif-Ahmed-Mohsin)
+<div style="text-align: center; padding-top: 1rem;">
+    Made with ❤️ by <a href="https://github.com/Tasrif-Ahmed-Mohsin" target="_blank">Tasrif</a>
+</div>
 """, unsafe_allow_html=True)
