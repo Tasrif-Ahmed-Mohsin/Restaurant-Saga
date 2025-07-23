@@ -10,6 +10,8 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from folium.plugins import HeatMap
+from folium import Map
+from folium.vector_layers import Rectangle
 
 # Page config with emoji and layout
 st.set_page_config(page_title="📍 Restaurant Success Predictor", layout="wide")
