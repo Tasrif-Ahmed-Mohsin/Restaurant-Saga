@@ -141,7 +141,7 @@ Rectangle(bounds=dhaka_bounds, fill=False, color='blue').add_to(m)
 lock_script = MacroElement()
 lock_script._template = Template("""
     <script>
-        var map = {{ this._parent.get_name() }};
+        var map = map;  // Assuming Folium's default map variable is named "map"
         var southWest = L.latLng(23.65, 90.25);
         var northEast = L.latLng(23.95, 90.55);
         var bounds = L.latLngBounds(southWest, northEast);
@@ -157,6 +157,7 @@ lock_script._template = Template("""
         });
     </script>
 """)
+
 m.get_root().add_child(lock_script)
 
 # Display map
