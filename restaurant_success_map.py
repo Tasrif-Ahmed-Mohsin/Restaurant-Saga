@@ -112,29 +112,52 @@ output_container = st.container()
 lat, lon, raw, percent = None, None, None, None
 
 # Map setup
-from folium import Map, Rectangle
+from folium import MacroElement
+from jinja2 import Template
+
 
 # Define Dhaka bounding box
 dhaka_bounds = [[23.65, 90.25], [23.95, 90.55]]
 
 # Create map restricted to Dhaka
-m = Map(
+m = folium.Map(
     location=[23.8103, 90.4125],
     zoom_start=12,
-    min_zoom=11,           # Prevent zooming too far out
-    max_zoom=16,           # Optional: prevent zooming in too much
-    max_bounds=True        # Prevent panning outside
+    min_zoom=12,
+    max_zoom=16,
+    max_bounds=True
 )
 
-# Optionally add a visible bounding box (debug or visual purpose)
-Rectangle(bounds=dhaka_bounds, fill=False, color='blue').add_to(m)
-
-# Fit map to bounds of Dhaka
-m.fit_bounds(dhaka_bounds)
-
-
+# Add heatmap
 heat_data = df[['latitude', 'longitude', 'success_rate']].dropna().values.tolist()
 HeatMap(heat_data, radius=15, blur=20, min_opacity=0.5).add_to(m)
+
+# Optional: Add visible bounding box
+Rectangle(bounds=dhaka_bounds, fill=False, color='blue').add_to(m)
+
+# Inject JavaScript to lock zoom & pan
+lock_script = MacroElement()
+lock_script._template = Template("""
+    <script>
+        var map = {{ this._parent.get_name() }};
+        var southWest = L.latLng(23.65, 90.25);
+        var northEast = L.latLng(23.95, 90.55);
+        var bounds = L.latLngBounds(southWest, northEast);
+
+        map.setMaxBounds(bounds);
+        map.on('drag', function() {
+            map.panInsideBounds(bounds, { animate: false });
+        });
+        map.on('zoomend', function() {
+            if (map.getZoom() < 12) {
+                map.setZoom(12);
+            }
+        });
+    </script>
+""")
+m.get_root().add_child(lock_script)
+
+# Display map
 map_data = st_folium(m, width=1000, height=520)
 
 
