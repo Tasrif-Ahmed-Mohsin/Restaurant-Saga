@@ -112,7 +112,16 @@ output_container = st.container()
 lat, lon, raw, percent = None, None, None, None
 
 # Map setup
-m = folium.Map(location=[23.8103, 90.4125], zoom_start=12, control_scale=True)
+m = folium.Map(
+    location=[23.8103, 90.4125],
+    zoom_start=12,
+    control_scale=True,
+    max_bounds=True
+)
+# Set bounds to roughly cover the Dhaka area
+dhaka_bounds = [[23.65, 90.25], [23.95, 90.55]]
+m.fit_bounds(dhaka_bounds)
+
 heat_data = df[['latitude', 'longitude', 'success_rate']].dropna().values.tolist()
 HeatMap(heat_data, radius=15, blur=20, min_opacity=0.5).add_to(m)
 map_data = st_folium(m, width=1000, height=520)
